@@ -1,46 +1,62 @@
 package com.edigest.journalApp.controller;
 
 import com.edigest.journalApp.entity.JournalEntry;
+import com.edigest.journalApp.service.JournalEntryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @RestController
+@Component
 @RequestMapping("/journal")
 public class JournalEntryController {
 
-    private Map<Long,JournalEntry> journalEntries = new HashMap<>();
+    @Autowired
+    private JournalEntryService journalEntryService;
 
     @GetMapping
     public List<JournalEntry> getAll()
     {
-        return new ArrayList<>(journalEntries.values());
+        return journalEntryService.getAllJournalEntries();
     }
     @PostMapping
-    public boolean createJournalEntry(@RequestBody JournalEntry entry)
+    public JournalEntry createJournalEntry(@RequestBody JournalEntry entry)
     {
-        journalEntries.put(entry.getId(),entry);
-        return true;
+        entry.setDate(LocalDateTime.now());
+        journalEntryService.saveJournalEntry(entry);
+        return entry;
     }
     @GetMapping("/id/{myId}")
-    public JournalEntry findById(@PathVariable Long myId){
-        return journalEntries.get(myId);
+    public JournalEntry findById(@PathVariable String myId){
+        JournalEntry byId = journalEntryService.findById(myId);
+        if(byId == null)
+            System.out.println("No entries were found");
+        return byId;
     }
 
     @PutMapping("id/{id}")
-    public JournalEntry updateJournalById(@RequestBody JournalEntry journalEntry, @PathVariable Long id)
+    public JournalEntry updateJournalById(@RequestBody JournalEntry newEntry, @PathVariable String  id)
     {
-        journalEntries.put(id,journalEntry);
-        return journalEntries.get(id);
+        JournalEntry oldEntry = journalEntryService.findById(id);
+        if(oldEntry != null)
+        {
+            oldEntry.setTitle(newEntry.getTitle()!=null && !newEntry.getTitle().equals("")?
+                    newEntry.getTitle():oldEntry.getTitle());
+            oldEntry.setContent(newEntry.getContent()!=null && !newEntry.getContent().equals("") ?
+                    newEntry.getContent(): oldEntry.getContent());
+            oldEntry.setDate(LocalDateTime.now());
+
+        }
+        journalEntryService.saveJournalEntry(oldEntry);
+        return oldEntry;
     }
 
     @DeleteMapping("id/{myId}")
-    public boolean deleteJournalById(@PathVariable Long myId)
+    public void deleteJournalById(@PathVariable String myId)
     {
-        journalEntries.remove(myId);
-        return true;
+        journalEntryService.deleteJournalById(myId);
     }
 }
