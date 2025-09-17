@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Component
 @Service
@@ -23,9 +24,9 @@ public class JournalEntryService {
     {
         return journalEntryRepository.findAll();
     }
-    public JournalEntry findById(String Id)
+    public Optional<JournalEntry> findById(String Id)
     {
-        return journalEntryRepository.findById(Id).orElse(null);
+        return journalEntryRepository.findById(Id);
     }
 
     public void deleteJournalById(String Id)
