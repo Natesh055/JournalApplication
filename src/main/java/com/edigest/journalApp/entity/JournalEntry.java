@@ -6,13 +6,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Data
 @Document(collection = "journalEntries")
 public class JournalEntry {
     @Id
-    private String id;
+    private ObjectId id;
     private String title;
     private String content;
     private LocalDateTime date;
