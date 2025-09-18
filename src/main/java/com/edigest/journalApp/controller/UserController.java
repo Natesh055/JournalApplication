@@ -5,13 +5,11 @@ import com.edigest.journalApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@Component
 @RequestMapping("/user")
 public class UserController {
     @Autowired
@@ -19,7 +17,7 @@ public class UserController {
 
     @GetMapping
     public List<User> getAllUsers() {
-        return userService.getAllUser();
+        return userService.getAllUsers();
     }
 
     @GetMapping("/{userName}")
@@ -28,13 +26,14 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<User> saveUser(@RequestBody User user) {
+    public ResponseEntity<User> saveNewUser(@RequestBody User user) {
         try {
-            userService.saveUser(user);
+            userService.saveNewUser(user);
             return new ResponseEntity<>(user, HttpStatus.OK);
         } catch (Exception exception) {
-            System.out.println("Duplicate user detected");
-            return new ResponseEntity<>(user, HttpStatus.CONFLICT);
+            System.out.println("Error occured");
+            exception.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
 
@@ -45,7 +44,7 @@ public class UserController {
             if (oldUser != null) {
                 oldUser.setUserName(newUser.getUserName());
                 oldUser.setPassword(newUser.getPassword());
-                userService.saveUser(oldUser);
+                userService.saveNewUser(oldUser);
             }
             return new ResponseEntity<>(oldUser, HttpStatus.OK);
         } catch (Exception exception) {

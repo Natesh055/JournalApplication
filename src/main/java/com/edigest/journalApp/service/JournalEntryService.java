@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,13 +23,14 @@ public class JournalEntryService {
     @Autowired
     private UserService userService;
 
+    @Transactional
     public void saveJournalEntry(JournalEntry journalEntry, String userName)
     {
         User user = userService.findUserByUserName(userName);
         journalEntry.setDate(LocalDateTime.now());
         JournalEntry saved = journalEntryRepository.save(journalEntry);
         user.getJournalEntryList().add(saved);
-        userService.saveUser(user);
+        userService.updateUser(user);
     }
     public void updateJournalEntry(JournalEntry journalEntry)
     {
@@ -48,7 +50,7 @@ public class JournalEntryService {
     {
         User user = userService.findUserByUserName(userName);
         user.getJournalEntryList().removeIf(x->x.getId().equals(id));
-        userService.saveUser(user);
+        userService.updateUser(user);
         journalEntryRepository.deleteById(id);
     }
 }
