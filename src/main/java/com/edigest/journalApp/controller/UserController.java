@@ -5,6 +5,8 @@ import com.edigest.journalApp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,26 +27,16 @@ public class UserController {
         return userService.findUserByUserName(userName);
     }
 
-    @PostMapping
-    public ResponseEntity<User> saveNewUser(@RequestBody User user) {
-        try {
-            userService.saveNewUser(user);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (Exception exception) {
-            System.out.println("Error occured");
-            exception.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @PutMapping("/{userName}")
-    public ResponseEntity<?> updateUserByUserName(@RequestBody User newUser, @PathVariable String userName) {
+    @PutMapping()
+    public ResponseEntity<?> updateUserByUserName(@RequestBody User newUser) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
         try {
             User oldUser = userService.findUserByUserName(userName);
             if (oldUser != null) {
                 oldUser.setUserName(newUser.getUserName());
                 oldUser.setPassword(newUser.getPassword());
-                userService.saveNewUser(oldUser);
+                userService.updateUser(oldUser);
             }
             return new ResponseEntity<>(oldUser, HttpStatus.OK);
         } catch (Exception exception) {

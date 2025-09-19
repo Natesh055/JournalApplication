@@ -2,30 +2,29 @@ package com.edigest.journalApp.service;
 
 import com.edigest.journalApp.entity.User;
 import com.edigest.journalApp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-@Service
+@Component
 public class UserDetailServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
-
-    public UserDetailServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUserName(username);
+    public UserDetails loadUserByUsername(String userName) throws UsernameNotFoundException {
+        User user = userRepository.findByUserName(userName);
+
         if (user != null) {
             return org.springframework.security.core.userdetails.User.builder()
                     .username(user.getUserName())
-                    .password(user.getPassword())               // Must be BCrypt hashed
-                    .roles(user.getRoles().toArray(new String[0])) // Spring adds ROLE_ automatically
+                    .password(user.getPassword())
+                    .roles(user.getRoles().toArray(new String[0]))
                     .build();
         }
-        throw new UsernameNotFoundException("User not found for username: " + username);
+        throw new UsernameNotFoundException("User not found with username: " + userName);
     }
 }
