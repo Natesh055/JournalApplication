@@ -36,7 +36,7 @@ public class UserController {
             if (oldUser != null) {
                 oldUser.setUserName(newUser.getUserName());
                 oldUser.setPassword(newUser.getPassword());
-                userService.updateUser(oldUser);
+                userService.saveNewUser(oldUser);
             }
             return new ResponseEntity<>(oldUser, HttpStatus.OK);
         } catch (Exception exception) {
